@@ -3,12 +3,15 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from .serializers import  ProductSerializer,product
-
+from  django.db.models import Q
 # Create your views here.
 @api_view(['GET', 'POST'])
 def productview(request):
+    search =request.GET.get('search')
     if request.method == 'GET':
         data=product.objects.all()
+        if search:
+            data=data.filter(Q(name__icontains=search) | Q(description__icontains=search))
         serializer=ProductSerializer(data,many=True)
         return Response(serializer.data , status=status.HTTP_200_OK)
     elif request.method == 'POST':
